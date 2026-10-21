@@ -1,0 +1,9 @@
+# <repo> <release asset globs...>: the latest GitHub release of each repo,
+# only the packages the phone runs from our builds. Everything published here
+# is pinned at 1100 by adaptation-sony-pdx206-extras, above Droidian (1002)
+# and archiemeng's custom-debs (1010).
+panxiao81/adaptation-sony-pdx206-extras adaptation-sony-pdx206-extras_*.deb
+panxiao81/mm-ofono mm-ofono_*.deb
+panxiao81/kernel_sony_sm8250 linux-image-*.deb linux-bootimage-*.deb
+panxiao81/mobile-power-saver mobile-power-saver_*.deb mobile-power-saver-droidian-phosh_*.deb mobile-power-saver-dbgsym_*.deb
+panxiao81/debian-mesa mesa-vulkan-drivers_*.deb

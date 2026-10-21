@@ -1,0 +1,62 @@
+name: Publish apt repository
+
+on:
+  push:
+    branches: [ "main" ]
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Fetch the latest release packages
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        mkdir -p site/pool
+        grep -v '^#' packages.list | while read -r repo globs; do
+          [ -n "$repo" ] || continue
+          set -- $globs
+          args=""; for g in "$@"; do args="$args --pattern $g"; done
+          gh release download --repo "$repo" --dir site/pool $args
+        done
+        ls -l site/pool
+    - name: Build and sign the index
+      env:
+        APT_SIGNING_KEY: ${{ secrets.APT_SIGNING_KEY }}
+      run: |
+        cd site
+        apt-ftparchive packages pool > Packages
+        gzip -9k Packages
+        apt-ftparchive \
+          -o APT::FTPArchive::Release::Origin=pdx206-apt \
+          -o APT::FTPArchive::Release::Label=pdx206-apt \
+          -o APT::FTPArchive::Release::Suite=trixie \
+          -o APT::FTPArchive::Release::Codename=trixie \
+          -o "APT::FTPArchive::Release::Architectures=arm64 all" \
+          release . > Release
+        export GNUPGHOME=$(mktemp -d)
+        echo "$APT_SIGNING_KEY" | gpg --batch --import
+        gpg --batch --clearsign -o InRelease Release
+        gpg --batch -abs -o Release.gpg Release
+        cp ../pdx206-apt.gpg .
+    - uses: actions/upload-pages-artifact@v3
+      with:
+        path: site
+    - id: deploy
+      uses: actions/deploy-pages@v4
