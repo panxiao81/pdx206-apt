@@ -7,3 +7,5 @@ panxiao81/mm-ofono mm-ofono_*.deb
 panxiao81/kernel_sony_sm8250 linux-image-*.deb linux-bootimage-*.deb
 panxiao81/mobile-power-saver mobile-power-saver_*.deb mobile-power-saver-droidian-phosh_*.deb mobile-power-saver-dbgsym_*.deb
 panxiao81/debian-mesa mesa-vulkan-drivers_*.deb
+panxiao81/ofono ofono_*.deb
+panxiao81/network-manager network-manager_*.deb libnm0_*.deb
